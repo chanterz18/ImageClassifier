@@ -26,101 +26,99 @@ import os
 import json
 
 def main():
+                
+    # Define get_input_args function within the file get_input_args.py
+    # This function retrieves 6 Command Line Arugments from user as input from
+    # the user running the program from a terminal window. 
+    in_arg = get_input_args_train()
     
-      # Define get_input_args function within the file get_input_args.py
-      # This function retrieves 6 Command Line Arugments from user as input from
-      # the user running the program from a terminal window. 
-      in_arg = get_input_args_train()
+    #data_dir = 'flowers' #hard-coded in here for testing argparse.
     
-      #data_dir = 'flowers' #hard-coded in here for testing argparse.
-    
-      trainloader, validloader, testloader = transform_data(in_arg.data_dir)
+    trainloader, validloader, testloader = transform_data(in_arg.data_dir)
       
-      # Build a pre-trained network
-      model_arch = in_arg.arch
-      
-      if model_arch == 'vgg13' :
+    # Build a pre-trained network
+    model_arch = in_arg.arch
+          
+    if model_arch == 'vgg13' :
         model = models.vgg13(pretrained=True) 
         input_fts = 25088
         
-      elif model_arch == 'vgg19' :
+    elif model_arch == 'vgg19' :  
         model = models.vgg19(pretrained=True)
         input_fts =  25088
         
-      elif model_arch == 'densenet121' :
+    elif model_arch == 'densenet121' :
         model = models.densenet121(pretrained=True) 
         input_fts = 1024
         
-      elif model_arch == 'densenet161' :
+    elif model_arch == 'densenet161' :
         model = models.densenet161(pretrained=True) 
         input_fts = 2208
         
-      # Block out the default, not needed.
-      #else :
-        #model = models.densenet161(pretrained=True) 
+    # Block out the default, not needed.
+    #else :
+    #model = models.densenet161(pretrained=True) 
       
-      # Print for checking
-      #print(model)
+    # Print for checking
+    #print(model)
       
-      # Freeze parameters so as not to backpropogate through them
-      for param in model.parameters():
-          param.requires_grad = False
+    # Freeze parameters so as not to backpropogate through them
+    for param in model.parameters():
+        param.requires_grad = False
      
 
-      # TEST PARAMETERS
-      # output units are hard-coded (specific to the directory)
-      drp = 0.2 #from 0.5
-      hidden_unit = in_arg.hidden_units
-      epochs = in_arg.epochs
-      lr = in_arg.learning_rate
-      save_dir = in_arg.save_dir
-      save_folder = in_arg.save_folder
-      gpu = in_arg.gpu
+    # TEST PARAMETERS
+    # output units are hard-coded (specific to the directory)
+    drp = 0.2 #from 0.5
+    hidden_unit = in_arg.hidden_units
+    epochs = in_arg.epochs
+    lr = in_arg.learning_rate
+    save_dir = in_arg.save_dir
+    save_folder = in_arg.save_folder
+    gpu = in_arg.gpu
         
     
-      #if not os.path.isfile('./checkpoint.pth'):
+    #if not os.path.isfile('./checkpoint.pth'):
         
-      print('Entering Build, Train, Verfiy, Test, Save model specified')
-      print('Number of epochs is {}'.format(epochs))
+    print('Entering Build, Train, Verfiy, Test, Save model specified')
+    print('Number of epochs is {}'.format(epochs))
         
-      model.classifier = nn.Sequential(nn.Linear(input_fts, hidden_unit),
-                                       nn.ReLU(),
-                                       nn.Dropout(drp),
-                                       nn.Linear(hidden_unit, 102),
-                                       nn.LogSoftmax(dim=1))   
+    model.classifier = nn.Sequential(nn.Linear(input_fts, hidden_unit),
+                                     nn.ReLU(),
+                                     nn.Dropout(drp),
+                                     nn.Linear(hidden_unit, 102),
+                                     nn.LogSoftmax(dim=1))   
 
-      # -------------------------------------------------------------------------
-      # Allow model to be model to GPU if available
-      if gpu :
-        
+    # -------------------------------------------------------------------------
+    # Allow model to be model to GPU if available
+    if gpu :
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         model.to(device)
         
-      else :
-        
+    else :
         device = "cpu"
         model.to(device)
         
-      #--------------------------------------------------------------------------  
+    #--------------------------------------------------------------------------  
         
-      # Error criterion
-      criterion = nn.NLLLoss()
+    # Error criterion
+    criterion = nn.NLLLoss()
 
-      # Optimizer
-      optimizer = optim.Adam(model.classifier.parameters(), lr)
-
-      # TRAIN
-      from workspace_utils import active_session
-
-      with active_session():
-
+    # Optimizer
+    optimizer = optim.Adam(model.classifier.parameters(), lr)
+        
+    # TRAIN
+    from workspace_utils import active_session
+        
+    with active_session():
+        
         #epochs defined above
         steps = 0
         running_loss = 0
         print_every = 10 #5 #64/4 so 4 per epoch.
-
+        
         for epoch in range(epochs):
-
+            
             # TRAINING
             for inputs, labels in trainloader:
                 steps += 1
@@ -173,17 +171,16 @@ def main():
 
                     #turns back on dropout, and gradients I'm assuming.
                     model.train()
-                    
-      # TESTING NETWORK
-      print('\n -------------------------\n')
-      print('       Enter Testing')
-      print('\n -------------------------\n')
+                            
+    # TESTING NETWORK
+    print('\n -------------------------\n')
+    print('       Enter Testing')
+    print('\n -------------------------\n')
 
-      from workspace_utils import active_session
+    from workspace_utils import active_session
 
-      with active_session():
-
-
+    with active_session():
+        
         test_loss = 0
         accuracy = 0
 
@@ -191,9 +188,9 @@ def main():
         model.eval()
 
         with torch.no_grad():
-
-
+            
             for inputs, labels in testloader:
+                
 
                 # Move input and label tensors to the default device
                 inputs, labels = inputs.to(device), labels.to(device)
@@ -215,30 +212,30 @@ def main():
 
         # Turns back on dropout, and gradients I'm assuming.
         model.train()
+                        
+    # Save checkpoint
                 
-      # Save checkpoint
-                
-      model.class_to_idx = train_data.class_to_idx
+    model.class_to_idx = train_data.class_to_idx
 
-      checkpoint = {'index' : model.class_to_idx,
-                    'model_type' : model_arch,
-                    'epochs' : epochs,
-                    'optimizer' : optimizer.state_dict,
-                    'input_size' : input_fts,
-                    'output_size' : 102,
-                    'dropout_rate' : drp,
-                    'learn_rate': lr,
-                    'features' : model.features,
-                    'classifier' : model.classifier,
-                    'state_dict': model.state_dict()}
+    checkpoint = {'index' : model.class_to_idx,
+                  'model_type' : model_arch,
+                  'epochs' : epochs,
+                  'optimizer' : optimizer.state_dict,
+                  'input_size' : input_fts,
+                  'output_size' : 102,
+                  'dropout_rate' : drp,
+                  'learn_rate': lr,
+                  'features' : model.features,
+                  'classifier' : model.classifier,
+                  'state_dict': model.state_dict()}
+    
+    # Save model
 
-      # Save model
+    torch.save(checkpoint, save_dir + save_folder + 'checkpoint.pth')
 
-      torch.save(checkpoint, save_dir + save_folder + 'checkpoint.pth')
-
-      print('--- Save complete ---')
+    print('--- Save complete ---')
                          
-      #print(model)          
+    #print(model)          
                 
     
 # Call to main function to run the program
