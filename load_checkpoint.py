@@ -41,7 +41,7 @@ def load_checkpoint(filepath):
       
     if model_arch_predict == 'vgg13' :
         model = models.vgg13(pretrained=True)
-
+        
     elif model_arch_predict == 'vgg19' :
         model = models.vgg19(pretrained=True)
 

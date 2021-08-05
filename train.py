@@ -34,7 +34,7 @@ def main():
     
     #data_dir = 'flowers' #hard-coded in here for testing argparse.
     
-    trainloader, validloader, testloader = transform_data(in_arg.data_dir)
+    trainloader, validloader, testloader, train_data = transform_data(in_arg.data_dir)
       
     # Build a pre-trained network
     model_arch = in_arg.arch

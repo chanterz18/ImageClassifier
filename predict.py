@@ -25,7 +25,7 @@ import random
 import json
 
 def main():
-
+    
     print('Make sure to run train.py first to train the model')
     
     # Define get_input_args function within the file get_input_args.py
@@ -95,9 +95,18 @@ def main():
     top_p, top_class = ps.topk(top_k, dim=1) #sum along columns, but it's just one image here.
     
     #convert top_p and top_class to numpy arrays and flatten
+    #need to be moved back to host memory first
     #top_p = top_p.to('cpu') - didn't work
-    top_p = top_p.numpy().flatten()
-    top_class = top_class.numpy().flatten()
+    print(device)
+    #if device == "cuda:0" :
+    #    top_p = top_p.cpu()
+    #    top_class = top_class.cpu()
+    
+    top_p = top_p.data.cpu().numpy().flatten()
+    top_class = top_class.data.cpu().numpy().flatten()
+    
+    #top_p = top_p.numpy().flatten()
+    #top_class = top_class.numpy().flatten()
     
     #create a dictionary
     #class_name1, idx  = model.class_to_idx.items()

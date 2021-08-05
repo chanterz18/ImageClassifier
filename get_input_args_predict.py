@@ -51,10 +51,11 @@ def get_input_args_predict():
     parser.add_argument('--category_names', type = str, default = 'cat_to_name.json', 
                     help = 'category mapping folder, get labels.')
     
+    #05
     parser.add_argument('--top_k', type = int, default = 5, 
                     help = 'number of top_k probabilities')
     
-    #05
+    #06
     parser.add_argument('--gpu', action = "store_true", default = False, 
                     help = 'presence of gpu for computation')
     
